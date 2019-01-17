@@ -1,22 +1,27 @@
 /* global window */
 import React, {Component} from 'react';
 import MapGL from 'react-map-gl';
-import {defaultMapStyle, pointLayer} from '../map';
+import racks from '../data/bike_racks.json'
+import { defaultMapStyle, circleLayer, setLayerStyle, generateMapStyle } from '../map';
+
+const RACK_DATA = racks;
+
 
 export class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
       viewport: {
-        latitude: 37.785164,
-        longitude: -122.4,
+        latitude: 39.7392,
+        longitude: -104.9903,
         zoom: 11,
         bearing: 0,
         pitch: 0,
         width: window.innerWidth,
         height: window.innerHeight,
       },
-      defaultMapStyle: 'https://maps.tilehosting.com/styles/darkmatter/style.json?key=9MrAs6YoNahMQEbekVSc',
+      mapData: null,
+      mapStyle: 'https://maps.tilehosting.com/c/bec3aee8-df86-4e99-92ec-887d03b00453/styles/basic-3a04a/style.json?key=9MrAs6YoNahMQEbekVSc',
       popupInfo: null
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
@@ -48,18 +53,32 @@ export class Map extends Component {
 
 
   _onMapLoad = () => {
-    this.setState({defaultMapStyle})
+    this.addPoints();
+  };
+
+  addPoints = () => {
+    const rackPoints = setLayerStyle(circleLayer('pointsOverlay', true), this.getPaintProperties());
+    const mapStyle = generateMapStyle(defaultMapStyle, 'pointsOverlay', RACK_DATA, rackPoints);
+    this.setState({ mapStyle});
+    console.log('updateMapStyle')
   }
 
+  getPaintProperties = () => ({
+    'circle-color': '#6C2CDF',
+    'circle-radius': 3,
+    'circle-stroke-width': 1,
+    'circle-stroke-color': '#FFF'
+  });
 
   render() {
 
-    const {viewport} = this.state;
+    const {viewport, mapStyle} = this.state;
+    console.log(mapStyle)
 
     return (
       <MapGL
         ref={this._map}
-        mapStyle={defaultMapStyle}
+        mapStyle={mapStyle}
         {...viewport}
         onViewportChange={this._updateViewport}
         onLoad={this._onMapLoad}
