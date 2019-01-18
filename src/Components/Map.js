@@ -3,7 +3,14 @@ import React, {Component} from 'react';
 import MapGL from 'react-map-gl';
 import racks from '../data/bike_racks.json'
 import neighborhoods from '../data/neighborhoods.json'
-import { defaultMapStyle, circleLayer, fillLayer, setLayerStyle, generateMapStyle } from '../map';
+import {
+  defaultMapStyle,
+  circleLayer,
+  fillLayer,
+  lineLayer,
+  setLayerStyle,
+  generateMapStyle
+} from '../map';
 
 const RACK_DATA = racks;
 const NEIGHBORHOOD_DATA = neighborhoods;
@@ -60,7 +67,9 @@ export class Map extends Component {
 
   addPolys = () => {
     const hoodPolys = setLayerStyle(fillLayer('polyOverlay', true), this.getPolyPaintProperties());
-    const mapStyle = generateMapStyle(defaultMapStyle, 'polyOverlay', NEIGHBORHOOD_DATA, hoodPolys);
+    const hoodOutline = setLayerStyle(lineLayer('polyLine', true), this.getLinePaintProperties());
+    const polyStyle = generateMapStyle(defaultMapStyle, 'polyOverlay', NEIGHBORHOOD_DATA, hoodPolys);
+    const mapStyle = generateMapStyle(polyStyle, 'polyLine', NEIGHBORHOOD_DATA, hoodOutline);
     this.addPoints(mapStyle);
   }
 
@@ -68,6 +77,11 @@ export class Map extends Component {
     'fill-color': '#000',
     'fill-opacity': .4,
     'fill-outline-color': '#FFF',
+  });
+
+  getLinePaintProperties = () => ({
+    'line-color': '#FFF',
+    'line-width': 2,
   });
 
   addPoints = (style) => {
