@@ -2,9 +2,11 @@
 import React, {Component} from 'react';
 import MapGL from 'react-map-gl';
 import racks from '../data/bike_racks.json'
-import { defaultMapStyle, circleLayer, setLayerStyle, generateMapStyle } from '../map';
+import neighborhoods from '../data/neighborhoods.json'
+import { defaultMapStyle, circleLayer, fillLayer, setLayerStyle, generateMapStyle } from '../map';
 
 const RACK_DATA = racks;
+const NEIGHBORHOOD_DATA = neighborhoods;
 
 
 export class Map extends Component {
@@ -53,27 +55,38 @@ export class Map extends Component {
 
 
   _onMapLoad = () => {
-    this.addPoints();
+    this.addPolys();
   };
 
-  addPoints = () => {
-    const rackPoints = setLayerStyle(circleLayer('pointsOverlay', true), this.getPaintProperties());
-    const mapStyle = generateMapStyle(defaultMapStyle, 'pointsOverlay', RACK_DATA, rackPoints);
-    this.setState({ mapStyle});
-    console.log('updateMapStyle')
+  addPolys = () => {
+    const hoodPolys = setLayerStyle(fillLayer('polyOverlay', true), this.getPolyPaintProperties());
+    const mapStyle = generateMapStyle(defaultMapStyle, 'polyOverlay', NEIGHBORHOOD_DATA, hoodPolys);
+    this.addPoints(mapStyle);
   }
 
-  getPaintProperties = () => ({
+  getPolyPaintProperties = () => ({
+    'fill-color': '#000',
+    'fill-opacity': .4,
+    'fill-outline-color': '#FFF',
+  });
+
+  addPoints = (style) => {
+    const rackPoints = setLayerStyle(circleLayer('pointsOverlay', true), this.getPointPaintProperties());
+    const mapStyle = generateMapStyle(style, 'pointsOverlay', RACK_DATA, rackPoints);
+    this.setState({ mapStyle});
+  }
+
+  getPointPaintProperties = () => ({
     'circle-color': '#6C2CDF',
     'circle-radius': 3,
     'circle-stroke-width': 1,
     'circle-stroke-color': '#FFF'
   });
 
+
   render() {
 
     const {viewport, mapStyle} = this.state;
-    console.log(mapStyle)
 
     return (
       <MapGL
