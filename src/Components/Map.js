@@ -1,6 +1,7 @@
 /* global window */
 import React, {Component} from 'react';
 import MapGL from 'react-map-gl';
+import { fromJS } from 'immutable';
 import * as turf from '@turf/turf';
 import racks from '../data/bike_racks.json'
 import neighborhoods from '../data/neighborhoods.json'
@@ -84,6 +85,22 @@ export class Map extends Component {
     this.setState({ mapStyle});
   };
 
+  addHighlight = (geom) => {
+    this.removeHighlight()
+    let hoodHighlight = setLayerStyle(fillLayer('hoodHighlight', true), this.getHighlightPaintProperties());
+    let mapStyle = generateMapStyle(this.state.mapStyle, 'hoodHighlight', geom, hoodHighlight);
+    this.setState({mapStyle});
+  };
+
+  removeHighlight = () => {
+    const { mapStyle } = this.state;
+    if(mapStyle.hasIn(['sources','hoodHighlight'])) {
+      const style = mapStyle.toJS();
+      style.layers.pop();
+      this.setState({mapStyle: fromJS(style)});
+    }
+  };
+
   getPolyPaintProperties = () => ({
     'fill-color': '#000',
     'fill-opacity': .4,
@@ -103,6 +120,12 @@ export class Map extends Component {
     'circle-stroke-color': '#FFF'
   });
 
+  getHighlightPaintProperties = () => ({
+    'fill-color': '#FFFF00',
+    'fill-opacity': .4,
+    'fill-outline-color': '#FFF',
+  });
+
   _onClick = event => {
     const {features, srcEvent: {offsetX, offsetY}} = event;
     const clickedFeature = features && features.find(f => f.layer.id === 'polyOverlay');
@@ -113,6 +136,7 @@ export class Map extends Component {
   queryFeatures = () => {
     const { geometry } = this.state.clickedFeature;
     const hoodRacks = turf.pointsWithinPolygon(RACK_DATA, geometry);
+    this.addHighlight(geometry);
     this.setState({hoodRacks});
   }
 
