@@ -53,13 +53,15 @@ export class Map extends Component {
     this.setState({ viewport });
   };
 
-
+  // Step 2 Add polygons before adding points
   _onMapLoad = () => {
     this.addPolys();
   };
 
   addPolys = () => {
+    // Create a new fill layer style named hoodPolys
     const hoodPolys = setLayerStyle(fillLayer('polyOverlay', true), this.getPolyPaintProperties());
+    // Add the neighborhood data to the hoodPolys style and generate the map style
     const mapStyle = generateMapStyle(defaultMapStyle, 'polyOverlay', NEIGHBORHOOD_DATA, hoodPolys);
     this.addPoints(mapStyle);
   }
@@ -70,6 +72,8 @@ export class Map extends Component {
     'fill-outline-color': '#FFF',
   });
 
+
+  // Step 1, add points to the map
   addPoints = (style) => {
     const rackPoints = setLayerStyle(circleLayer('pointsOverlay', true), this.getPointPaintProperties());
     const mapStyle = generateMapStyle(style, 'pointsOverlay', RACK_DATA, rackPoints);
