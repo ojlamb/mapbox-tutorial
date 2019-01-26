@@ -56,6 +56,7 @@ export class Map extends Component {
     this.addPoints();
   };
 
+  // Step 1: adding points to the map
   addPoints = () => {
     const rackPoints = setLayerStyle(circleLayer('pointsOverlay', true), this.getPaintProperties());
     const mapStyle = generateMapStyle(defaultMapStyle, 'pointsOverlay', RACK_DATA, rackPoints);
@@ -63,6 +64,7 @@ export class Map extends Component {
     console.log('updateMapStyle')
   }
 
+  // Style using mapbox style spec https://docs.mapbox.com/mapbox-gl-js/style-spec
   getPaintProperties = () => ({
     'circle-color': '#6C2CDF',
     'circle-radius': 3,
@@ -71,9 +73,7 @@ export class Map extends Component {
   });
 
   render() {
-
     const {viewport, mapStyle} = this.state;
-    console.log(mapStyle)
 
     return (
       <MapGL
